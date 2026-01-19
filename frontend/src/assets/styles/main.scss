@@ -1,0 +1,32 @@
+// Custom overrides
+$primary: #A03037; // Reference from the screenshot (Maroon color)
+$secondary: #fff;
+
+// Import Bootstrap SCSS
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #F5F5F5;
+}
+
+// Global Styles
+.btn-primary {
+    background-color: $primary;
+    border-color: $primary;
+
+    &:hover {
+        background-color: darken($primary, 10%);
+        border-color: darken($primary, 10%);
+    }
+}
+
+// Card hover effect
+.hover-shadow {
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+}
