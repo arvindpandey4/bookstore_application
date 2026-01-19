@@ -38,7 +38,16 @@ const startEmailWorker = async () => {
                 console.log('Processing email job:', message.type);
 
                 try {
-                    if (message.type === 'RESET_PASSWORD') {
+                    if (message.type === 'WELCOME_EMAIL') {
+                        await sendEmail(
+                            message.email,
+                            'Welcome to Bookstore!',
+                            `<h3>Welcome to Bookstore, ${message.name}!</h3>
+                             <p>We are excited to have you on board.</p>
+                             <p>Start browsing our collection of books today!</p>
+                             <p><a href="http://localhost:5173/">Go to Homepage</a></p>`
+                        );
+                    } else if (message.type === 'RESET_PASSWORD') {
                         await sendEmail(
                             message.email,
                             'Reset Your Password - Bookstore',

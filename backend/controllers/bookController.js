@@ -1,55 +1,19 @@
-const Book = require('../models/Book');
-
-const { getClient } = require('../config/redis');
+const bookService = require('../services/book.service');
 
 // @desc    Fetch all books
 // @route   GET /books
 // @access  Public
 const getBooks = async (req, res) => {
     try {
-        const client = getClient();
-        const cacheKey = req.query.keyword ? `books:${req.query.keyword}` : 'books:all';
+        const result = await bookService.getAllBooks(req.query.keyword);
 
-        if (client) {
-            try {
-                const cachedBooks = await client.get(cacheKey);
-                if (cachedBooks) {
-                    console.log('Serving from Cache');
-                    return res.json({
-                        success: true,
-                        count: JSON.parse(cachedBooks).length,
-                        data: JSON.parse(cachedBooks),
-                        source: 'cache'
-                    });
-                }
-            } catch (err) {
-                console.error('Redis Get Error:', err);
-            }
-        }
-
-        const keyword = req.query.keyword
-            ? {
-                title: {
-                    $regex: req.query.keyword,
-                    $options: 'i',
-                },
-            }
-            : {};
-
-        const books = await Book.find({ ...keyword });
-
-        if (client) {
-            try {
-                await client.set(cacheKey, JSON.stringify(books), { EX: 3600 }); // Cache for 1 hour
-            } catch (err) {
-                console.error('Redis Set Error:', err);
-            }
-        }
+        // Log source for debugging (optional)
+        if (result.source === 'cache') console.log('Serving from Cache');
 
         res.json({
             success: true,
-            count: books.length,
-            data: books
+            count: result.books.length,
+            data: result.books
         });
     } catch (error) {
         res.status(500).json({
@@ -64,7 +28,7 @@ const getBooks = async (req, res) => {
 // @access  Public
 const getBookById = async (req, res) => {
     try {
-        const book = await Book.findById(req.params.id);
+        const book = await bookService.getBookById(req.params.id);
 
         if (book) {
             res.json({
