@@ -36,6 +36,7 @@ app.use(passport.session());
 require('./config/passport');
 
 // Routes
+app.use('/auth', require('./routes/authRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/books', require('./routes/bookRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
@@ -59,7 +60,12 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
+const { connectRedis } = require('./config/redis');
+const startEmailWorker = require('./workers/emailWorker');
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
+  await connectRedis();
+  await startEmailWorker();
 });

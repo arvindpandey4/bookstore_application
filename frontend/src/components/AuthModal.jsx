@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import loginImage from '../assets/images/image.png';
 
 const AuthModal = ({ onClose }) => {
+    const navigate = useNavigate();
     const [view, setView] = useState('login');
     const { login, register } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
@@ -161,8 +163,9 @@ const AuthModal = ({ onClose }) => {
                                     {loginAttempts && !password && <div className="text-danger small mt-1">Required</div>}
                                 </div>
 
+
                                 <div className="text-end mb-4">
-                                    <button type="button" className="btn btn-link text-muted p-0 text-decoration-none" style={{ fontSize: '10px' }}>Forgot Password?</button>
+                                    <button type="button" className="btn btn-link text-muted p-0 text-decoration-none" style={{ fontSize: '10px' }} onClick={() => { onClose(); navigate('/forgot-password'); }}>Forgot Password?</button>
                                 </div>
 
                                 {loginError && <div className="alert alert-danger py-1 small">{loginError}</div>}
@@ -177,7 +180,7 @@ const AuthModal = ({ onClose }) => {
 
                                 <div className="d-flex gap-3 justify-content-between mt-2">
                                     <button type="button" className="btn flex-grow-1 fw-bold text-white py-2 small" style={{ backgroundColor: '#4267B2', border: 'none', borderRadius: '2px' }}>Facebook</button>
-                                    <button type="button" className="btn btn-light border flex-grow-1 fw-bold text-muted py-2 small" style={{ borderRadius: '2px' }}>Google</button>
+                                    <button type="button" className="btn btn-light border flex-grow-1 fw-bold text-muted py-2 small" style={{ borderRadius: '2px' }} onClick={() => window.open('http://localhost:5000/auth/google', '_self')}>Google</button>
                                 </div>
                             </form>
                         ) : (
@@ -239,6 +242,14 @@ const AuthModal = ({ onClose }) => {
                                 {signupError && <div className="alert alert-danger py-1 small">{signupError}</div>}
 
                                 <button type="submit" className="btn w-100 fw-bold py-2 text-white mt-4" style={{ backgroundColor: '#A03037', border: 'none', borderRadius: '2px' }}>Signup</button>
+
+                                <div className="d-flex align-items-center my-2">
+                                    <hr className="flex-grow-1 my-0" />
+                                    <span className="text-muted fw-bold small mx-3" style={{ fontSize: '12px' }}>OR</span>
+                                    <hr className="flex-grow-1 my-0" />
+                                </div>
+
+                                <button type="button" className="btn btn-light border w-100 fw-bold text-muted py-2 small" style={{ borderRadius: '2px' }} onClick={() => window.open('http://localhost:5000/auth/google', '_self')}>Google Signup</button>
                             </form>
                         )}
                     </div>

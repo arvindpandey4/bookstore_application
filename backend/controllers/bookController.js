@@ -1,10 +1,32 @@
 const Book = require('../models/Book');
 
+const { getClient } = require('../config/redis');
+
 // @desc    Fetch all books
 // @route   GET /books
 // @access  Public
 const getBooks = async (req, res) => {
     try {
+        const client = getClient();
+        const cacheKey = req.query.keyword ? `books:${req.query.keyword}` : 'books:all';
+
+        if (client) {
+            try {
+                const cachedBooks = await client.get(cacheKey);
+                if (cachedBooks) {
+                    console.log('Serving from Cache');
+                    return res.json({
+                        success: true,
+                        count: JSON.parse(cachedBooks).length,
+                        data: JSON.parse(cachedBooks),
+                        source: 'cache'
+                    });
+                }
+            } catch (err) {
+                console.error('Redis Get Error:', err);
+            }
+        }
+
         const keyword = req.query.keyword
             ? {
                 title: {
@@ -15,6 +37,14 @@ const getBooks = async (req, res) => {
             : {};
 
         const books = await Book.find({ ...keyword });
+
+        if (client) {
+            try {
+                await client.set(cacheKey, JSON.stringify(books), { EX: 3600 }); // Cache for 1 hour
+            } catch (err) {
+                console.error('Redis Set Error:', err);
+            }
+        }
 
         res.json({
             success: true,

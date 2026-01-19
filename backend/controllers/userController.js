@@ -134,9 +134,83 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// @desc    Get user profile
+// @route   GET /auth/profile
+// @access  Private
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (user) {
+            res.json({
+                success: true,
+                data: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    mobile: user.mobile,
+                    token: generateToken(user._id),
+                },
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'User not found',
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// @desc    Forgot Password
+// @route   POST /auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Generate a simple reset token (in production use crypto)
+        const resetToken = generateToken(user._id); // Reusing JWT for simplicity context
+        const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+
+        // Publish to RabbitMQ
+        const { publishToQueue } = require('../config/rabbitmq');
+        await publishToQueue('email_queue', {
+            type: 'RESET_PASSWORD',
+            email: user.email,
+            link: resetLink
+        });
+
+        res.json({
+            success: true,
+            message: 'Password reset link sent to your email'
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     googleCallback,
     updateProfile,
+    getUserProfile,
+    forgotPassword,
 };

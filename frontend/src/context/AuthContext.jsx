@@ -45,6 +45,18 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || 'Registration failed');
     };
 
+    const loginWithToken = async (token) => {
+        localStorage.setItem('token', token);
+        // We need to fetch the profile because Google login only gave us the token
+        const data = await userService.getProfile();
+        if (data.success) {
+            setUser(data.data);
+            localStorage.setItem('user', JSON.stringify(data.data));
+            return data;
+        }
+        throw new Error('Failed to fetch user profile');
+    };
+
     const logout = () => {
         userService.logout();
         setUser(null);
@@ -54,6 +66,7 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         register,
+        loginWithToken,
         logout,
         isAuthenticated: !!user,
         loading

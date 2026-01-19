@@ -1,4 +1,5 @@
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -18,6 +19,29 @@ function AppContent() {
   const { isAuthenticated } = useAuth();
   const hideHeaderPaths = ['/login', '/forgot-password'];
   const showHeader = !hideHeaderPaths.includes(location.pathname);
+  const { loginWithToken } = useAuth();
+  const navigate = React.useNavigate ? React.useNavigate() : null; // Hooks call order might be tricky inside AppContent which is child. 
+  // Wait, AppContent is inside Router so navigate works? No, AppContent is inside App -> Router. Check line 67.
+  // Actually AppContent is CALLED inside App which is inside BrowserRouter? No.
+  // App.jsx structure:
+  // function AppContent() { useLocation... }
+  // function App() { return (AuthProvider)(CartProvider)(AppContent) }
+  // Where is Router?
+  // Usually Router is in main.jsx.
+  // I will assume Router surrounds App.
+  const query = new URLSearchParams(location.search);
+  const token = query.get('token');
+
+  React.useEffect(() => {
+    if (token) {
+      loginWithToken(token).then(() => {
+        // Remove token from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }).catch(err => {
+        console.error(err);
+      });
+    }
+  }, [token, loginWithToken]);
 
   return (
     <div className="d-flex flex-column min-vh-100">

@@ -23,10 +23,22 @@ const logout = () => {
     localStorage.removeItem('user');
 };
 
+const getProfile = async () => {
+    const response = await axios.get('/api/auth/profile');
+    return response.data;
+};
+
+const forgotPassword = async (email) => {
+    const response = await axios.post('/api/auth/forgot-password', { email });
+    return response.data;
+};
+
 const authService = {
     register,
     login,
-    logout
+    logout,
+    getProfile,
+    forgotPassword
 };
 
 export default authService;

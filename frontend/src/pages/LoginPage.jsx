@@ -173,7 +173,7 @@ const LoginPage = () => {
 
                                 <div className="d-flex gap-3 justify-content-between mt-2">
                                     <button type="button" className="btn flex-grow-1 fw-bold text-white py-2 small" style={{ backgroundColor: '#4267B2', border: 'none', borderRadius: '2px' }}>Facebook</button>
-                                    <button type="button" className="btn btn-light border flex-grow-1 fw-bold text-muted py-2 small" style={{ borderRadius: '2px' }}>Google</button>
+                                    <button type="button" className="btn btn-light border flex-grow-1 fw-bold text-muted py-2 small" style={{ borderRadius: '2px' }} onClick={() => window.open('http://localhost:5000/auth/google', '_self')}>Google</button>
                                 </div>
                             </form>
                         ) : (
@@ -235,6 +235,14 @@ const LoginPage = () => {
                                 {signupError && <div className="alert alert-danger py-1 small">{signupError}</div>}
 
                                 <button type="submit" className="btn w-100 fw-bold py-2 text-white mt-4" style={{ backgroundColor: '#A03037', border: 'none', borderRadius: '2px' }}>Signup</button>
+
+                                <div className="d-flex align-items-center my-2">
+                                    <hr className="flex-grow-1 my-0" />
+                                    <span className="text-muted fw-bold small mx-3" style={{ fontSize: '12px' }}>OR</span>
+                                    <hr className="flex-grow-1 my-0" />
+                                </div>
+
+                                <button type="button" className="btn btn-light border w-100 fw-bold text-muted py-2 small" style={{ borderRadius: '2px' }} onClick={() => window.open('http://localhost:5000/auth/google', '_self')}>Google Signup</button>
                             </form>
                         )}
                     </div>

@@ -70,6 +70,14 @@ const placeOrder = async (req, res) => {
             cart.items = [];
             await cart.save();
 
+            // 7. Send Email Notification
+            const { publishToQueue } = require('../config/rabbitmq');
+            await publishToQueue('email_queue', {
+                type: 'ORDER_CONFIRMATION',
+                email: req.user.email,
+                orderId: order._id
+            });
+
             res.status(201).json({
                 success: true,
                 message: 'Order placed successfully',
